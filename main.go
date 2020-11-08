@@ -31,13 +31,6 @@ type Window struct {
     field *Field
 }
 
-type State uint8
-const (
-    VOID State = iota
-    Filled
-    Falling
-)
-
 type Form uint8
 const (
 	I Form = iota
@@ -48,17 +41,6 @@ const (
 	L
 	T
 )
-
-type Cell struct {
-    state State
-    form Form
-    rect sdl.Rect
-}
-
-type Field struct {
-    surface *sdl.Surface
-    board [FIELD_HEIGHT][FIELD_WIDTH]*Cell
-}
 
 func newWindow() (*Window, error) {
 	window, err := sdl.CreateWindow(
@@ -86,31 +68,6 @@ func newWindow() (*Window, error) {
     return w, nil
 }
 
-func newField(window *sdl.Window) (*Field, error) {
-    var board [FIELD_HEIGHT][FIELD_WIDTH]*Cell
-    for h := 0; h < FIELD_HEIGHT; h++ {
-        for w := 0; w < FIELD_WIDTH; w++ {
-            board[h][w] = newCell(VOID)
-        }
-    }
-
-	surface, err := window.GetSurface()
-    if err != nil {
-        return nil, err
-    }
-
-    f := &Field{
-        board: board,
-        surface: surface,
-    }
-
-    return f, nil
-}
-
-func newCell(state State) *Cell {
-    return &Cell{ state: state }
-}
-
 func (w *Window) initialize() {
     w.field.draw()
 	w.update()
@@ -118,54 +75,6 @@ func (w *Window) initialize() {
 
 func (w *Window) update() {
     w.window.UpdateSurface()
-}
-
-func (f *Field) draw() {
-    for h := 0; h < FIELD_HEIGHT; h++ {
-        for w := 0; w < FIELD_WIDTH; w++ {
-            cell := f.board[h][w]
-            cell.draw(h, w, f.surface)
-        }
-    }
-}
-
-func (c *Cell) draw(h, w int, surface *sdl.Surface) {
-    rect := c.getRect(h, w)
-    surface.FillRect(&rect, uint32(c.color()))
-}
-
-func (c *Cell) color() Color {
-    if c.state == VOID {
-        return colorVOID
-    }
-
-    switch c.form {
-    case I:
-        return colorI
-    case O:
-        return colorO
-    case S:
-        return colorS
-    case Z:
-        return colorZ
-    case J:
-        return colorJ
-    case L:
-        return colorL
-    case T:
-        return colorT
-    }
-
-    panic("cell color cannot determined")
-}
-
-func (c *Cell) getRect(h, w int) sdl.Rect{
-    return sdl.Rect {
-        int32(w * CELL_LEN),
-        int32(h * CELL_LEN),
-        CELL_LEN,
-        CELL_LEN,
-    }
 }
 
 func main() {
