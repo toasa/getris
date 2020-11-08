@@ -89,20 +89,18 @@ func main() {
 
     w.initialize()
 
-    c := newCell(Falling)
-    c.form = I
-    c.draw(2, 3, w.field.surface)
+    w.field.addCell(2, 3, colorI)
     w.update()
 
 	running := true
-	for running {
-		for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
-			switch event.(type) {
-			case *sdl.QuitEvent:
-				println("Quit")
-				running = false
-				break
-			}
-		}
-	}
+    for running {
+        for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
+            switch event.(type) {
+            case *sdl.QuitEvent:
+                println("Quit")
+                running = false
+                break
+            }
+        }
+    }
 }
