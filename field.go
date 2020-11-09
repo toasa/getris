@@ -74,6 +74,16 @@ func (f *Field) addMino(form Form) {
 // attempt attempts to move a current tetri-mino.
 func (f *Field) attempt(move Move) {
     new_m := f.curMino.move(move)
+
+    // current tetri-mino reaches to bottom or
+    // already filled cells.
+    if move == MoveDown && f.atBottom(*new_m) {
+        f.toFix(*(f.curMino))
+        f.draw()
+        f.curMino = nil
+        return
+    }
+
     if !f.legalMove(*new_m) {
         return
     }
@@ -115,5 +125,41 @@ func (f *Field) blank(m Mino) {
         w := coord.getWidth()
         cell := f.getCell(h, w)
         cell.toVoid()
+    }
+}
+
+func (f *Field) atBottom(m Mino) bool {
+    coords := m.coords
+    for _, coord := range coords {
+        if coord.isExceedTop() {
+            continue
+        }
+
+        h := coord.getHeight()
+        w := coord.getWidth()
+        if h >= FIELD_HEIGHT {
+            return true
+        }
+
+        cell := f.getCell(h, w)
+        if cell.state == Filled {
+            return true
+        }
+    }
+
+    return false
+}
+
+func (f *Field) toFix(m Mino) {
+    coords := m.coords
+    for _, coord := range coords {
+        if coord.isExceedTop() {
+            continue
+        }
+
+        h := coord.getHeight()
+        w := coord.getWidth()
+        cell := f.getCell(h, w)
+        cell.state = Filled
     }
 }

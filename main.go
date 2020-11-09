@@ -84,6 +84,10 @@ func (w *Window) run() {
                         w.field.attempt(MoveRight)
                     case KEY_DOWN:
                         w.field.attempt(MoveDown)
+                        if w.field.curMino == nil {
+                            w.field.addMino(T)
+                            w.update()
+                        }
                     }
                 }
                 w.update()
