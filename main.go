@@ -1,6 +1,8 @@
 package main
 
 import (
+    "math/rand"
+    "time"
     "github.com/veandco/go-sdl2/sdl"
 )
 
@@ -11,6 +13,7 @@ const (
     CELL_LEN = 20
     FIELD_WIDTH = 10
     FIELD_HEIGHT = 20
+    MINO_NUM = 7
 )
 
 type Color uint32
@@ -60,10 +63,16 @@ func newWindow() (*Window, error) {
 func (w *Window) initialize() {
     w.field.draw()
 	w.update()
+    // To randomize the selection of tetri-mino.
+    rand.Seed(time.Now().UnixNano())
 }
 
 func (w *Window) update() {
     w.window.UpdateSurface()
+}
+
+func getRandomForm() Form {
+    return Form(rand.Intn(MINO_NUM))
 }
 
 func (w *Window) run() {
@@ -85,7 +94,7 @@ func (w *Window) run() {
                     case KEY_DOWN:
                         w.field.attempt(MoveDown)
                         if w.field.curMino == nil {
-                            w.field.addMino(T)
+                            w.field.addMino(getRandomForm())
                             w.update()
                         }
                     }
@@ -94,6 +103,12 @@ func (w *Window) run() {
             }
         }
     }
+}
+
+func start(w *Window) {
+    w.field.addMino(getRandomForm())
+    w.update()
+    w.run()
 }
 
 func main() {
@@ -107,9 +122,5 @@ func main() {
     }
 
     w.initialize()
-
-    w.field.addMino(T)
-    w.update()
-
-    w.run()
+    start(w)
 }
