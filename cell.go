@@ -14,8 +14,6 @@ const (
 type Cell struct {
     state State
     color Color
-    // Need?
-    rect sdl.Rect
 }
 
 func newCell(state State, color Color) *Cell {
