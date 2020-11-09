@@ -7,8 +7,7 @@ import (
 type Field struct {
     surface *sdl.Surface
     board [FIELD_HEIGHT][FIELD_WIDTH]*Cell
-    // TODO: curMinoを実装次第、置き換える
-    curCell *Cell
+    curMino *Mino
 }
 
 func newField(window *sdl.Window) (*Field, error) {
@@ -41,10 +40,32 @@ func (f *Field) draw() {
     }
 }
 
-// TODO: addMinoに置き換える
-func (f *Field) addCell(h, w int, color Color) {
-    c := newCell(Falling, color)
-    f.curCell = c
+func (f *Field) setCell(h, w int, c *Cell) {
     f.board[h][w] = c
-    c.draw(h, w, f.surface)
+}
+
+func (f *Field) getCell(h, w int) *Cell {
+    return f.board[h][w]
+}
+
+func (f *Field) setMino(m *Mino) {
+    f.curMino = m
+    for _, coord := range m.coords {
+        h := coord[0]
+        w := coord[1]
+
+        // Cells that extend beyond the top of the field are valid,
+        // however do not draw.
+        if h < 0 {
+            continue
+        }
+        cell := newCell(Falling, m.color())
+        f.setCell(h, w, cell)
+    }
+}
+
+func (f *Field) addMino(form Form) {
+    m := getInitPosMino(form)
+    f.setMino(m)
+    f.draw()
 }

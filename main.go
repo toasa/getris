@@ -17,30 +17,19 @@ type Color uint32
 const (
     colorWindow Color = 0x00000000
     colorVOID Color = 0x00BBBBBB
-	colorI Color = 0x00E5282E
-	colorO Color = 0x00274696
-	colorS Color = 0x00EF7E18
-	colorZ Color = 0x002CB099
-	colorJ Color = 0x00F8D517
-	colorL Color = 0x00DF2384
-	colorT Color = 0x005CAD2C
+    colorI Color = 0x007BD7F9
+    colorO Color = 0x00F7D320
+    colorS Color = 0x0015A81F
+    colorZ Color = 0x00D1252B
+    colorJ Color = 0x003122B5
+    colorL Color = 0x00E56820
+    colorT Color = 0x00673CAD
 )
 
 type Window struct {
     window *sdl.Window
     field *Field
 }
-
-type Form uint8
-const (
-	I Form = iota
-	O
-	S
-	Z
-	J
-	L
-	T
-)
 
 func newWindow() (*Window, error) {
 	window, err := sdl.CreateWindow(
@@ -89,7 +78,7 @@ func main() {
 
     w.initialize()
 
-    w.field.addCell(2, 3, colorI)
+    w.field.addMino(T)
     w.update()
 
 	running := true
