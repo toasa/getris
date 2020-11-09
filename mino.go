@@ -27,8 +27,71 @@ const (
     rot270
 )
 
-func newMino(f Form) *Mino {
-    return &Mino{ form: f, rot: rot0 }
+type Move uint8
+const (
+    MoveLeft Move = iota
+    MoveRight
+    MoveDown
+)
+
+func (c Coord) getHeight() int {
+    return c[0]
+}
+
+func (c Coord) getWidth() int {
+    return c[1]
+}
+
+func (c Coord) isExceedTop() bool {
+    return c.getHeight() < 0
+}
+
+func (c Coord) left() Coord {
+    h := c.getHeight()
+    w := c.getWidth() - 1
+    return Coord{ h, w }
+}
+
+func (c Coord) right() Coord {
+    h := c.getHeight()
+    w := c.getWidth() + 1
+    return Coord{ h, w }
+}
+
+func (c Coord) down() Coord {
+    h := c.getHeight() + 1
+    w := c.getWidth()
+    return Coord{ h, w }
+}
+
+func (m *Mino) left() {
+    for i, c := range m.coords {
+        m.coords[i] = c.left()
+    }
+}
+
+func (m *Mino) right() {
+    for i, c := range m.coords {
+        m.coords[i] = c.right()
+    }
+}
+
+func (m *Mino) down() {
+    for i, c := range m.coords {
+        m.coords[i] = c.down()
+    }
+}
+
+func newMino(f Form, r Rot) *Mino {
+    return &Mino{ form: f, rot: r }
+}
+
+func (m *Mino) copy() *Mino {
+    new_m := new(Mino)
+    new_m.form = m.form
+    new_m.rot = m.rot
+    new_m.coords = m.coords
+    return new_m
 }
 
 func (m *Mino) color() Color {
@@ -53,7 +116,7 @@ func (m *Mino) color() Color {
 }
 
 func getInitPosMino(f Form) *Mino {
-    m := newMino(f)
+    m := newMino(f, rot0)
 
     var coords [4]Coord
     switch m.form {
@@ -97,3 +160,15 @@ func getInitPosMino(f Form) *Mino {
     return m
 }
 
+func (m *Mino) move(move Move) *Mino {
+    new_m := m.copy()
+    switch move {
+    case MoveLeft:
+        new_m.left()
+    case MoveRight:
+        new_m.right()
+    case MoveDown:
+        new_m.down()
+    }
+    return new_m
+}

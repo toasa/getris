@@ -66,6 +66,32 @@ func (w *Window) update() {
     w.window.UpdateSurface()
 }
 
+func (w *Window) run() {
+	running := true
+    for running {
+        for e := sdl.PollEvent(); e != nil; e = sdl.PollEvent() {
+            switch t := e.(type) {
+            case *sdl.QuitEvent:
+                println("Quit")
+                running = false
+                break
+            case *sdl.KeyboardEvent:
+                if t.GetType() == sdl.KEYDOWN {
+                    switch getKeycode(t) {
+                    case KEY_LEFT:
+                        w.field.attempt(MoveLeft)
+                    case KEY_RIGHT:
+                        w.field.attempt(MoveRight)
+                    case KEY_DOWN:
+                        w.field.attempt(MoveDown)
+                    }
+                }
+                w.update()
+            }
+        }
+    }
+}
+
 func main() {
 	if err := sdl.Init(sdl.INIT_EVERYTHING); err != nil {
 		panic(err)
@@ -81,15 +107,5 @@ func main() {
     w.field.addMino(T)
     w.update()
 
-	running := true
-    for running {
-        for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
-            switch event.(type) {
-            case *sdl.QuitEvent:
-                println("Quit")
-                running = false
-                break
-            }
-        }
-    }
+    w.run()
 }

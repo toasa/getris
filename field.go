@@ -64,8 +64,56 @@ func (f *Field) setMino(m *Mino) {
     }
 }
 
+// TODO: Judge game over
 func (f *Field) addMino(form Form) {
     m := getInitPosMino(form)
     f.setMino(m)
     f.draw()
+}
+
+// attempt attempts to move a current tetri-mino.
+func (f *Field) attempt(move Move) {
+    new_m := f.curMino.move(move)
+    if !f.legalMove(*new_m) {
+        return
+    }
+    f.blank(*(f.curMino))
+    f.setMino(new_m)
+    f.draw()
+}
+
+func (f *Field) legalMove(m Mino) bool {
+    coords := m.coords
+    for _, coord := range coords {
+        if coord.isExceedTop() {
+            continue
+        }
+        h := coord.getHeight()
+        w := coord.getWidth()
+
+        // Exceed field
+        if h >= FIELD_HEIGHT || w < 0 || w >= FIELD_WIDTH {
+            return false
+        }
+
+        cell := f.getCell(h, w)
+        if cell.state == Filled {
+            return false
+        }
+    }
+    return true
+}
+
+func (f *Field) blank(m Mino) {
+    coords := m.coords
+    for _, coord := range coords {
+        if coord.isExceedTop() {
+            continue
+        }
+
+        h := coord.getHeight()
+        w := coord.getWidth()
+        cell := f.getCell(h, w)
+        cell.toVoid()
+    }
 }

@@ -14,6 +14,7 @@ const (
 type Cell struct {
     state State
     color Color
+    // Need?
     rect sdl.Rect
 }
 
@@ -33,5 +34,10 @@ func (c *Cell) getRect(h, w int) sdl.Rect{
         CELL_LEN,
         CELL_LEN,
     }
+}
+
+func (c *Cell) toVoid() {
+    c.state = VOID
+    c.color = colorVOID
 }
 
