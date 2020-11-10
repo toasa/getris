@@ -97,6 +97,10 @@ func (w *Window) run() {
                             w.field.addMino(getRandomForm())
                             w.update()
                         }
+                    case KEY_ROT_LEFT:
+                        w.field.attempt(RotLeft)
+                    case KEY_ROT_RIGHT:
+                        w.field.attempt(RotRight)
                     }
                 }
                 w.update()

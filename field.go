@@ -71,7 +71,7 @@ func (f *Field) addMino(form Form) {
     f.draw()
 }
 
-// attempt attempts to move a current tetri-mino.
+// attempt attempts to a specific move for current tetri-mino.
 func (f *Field) attempt(move Move) {
     new_m := f.curMino.move(move)
 

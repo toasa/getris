@@ -6,6 +6,9 @@ type Mino struct {
     form Form
     rot Rot
     coords [4]Coord
+
+    // To simplify implementation of rotation.
+    pivot Coord
 }
 
 type Form uint8
@@ -32,6 +35,8 @@ const (
     MoveLeft Move = iota
     MoveRight
     MoveDown
+    RotLeft
+    RotRight
 )
 
 func (c Coord) getHeight() int {
@@ -58,28 +63,285 @@ func (c Coord) right() Coord {
     return Coord{ h, w }
 }
 
+func (c Coord) up() Coord {
+    h := c.getHeight() - 1
+    w := c.getWidth()
+    return Coord{ h, w }
+}
+
 func (c Coord) down() Coord {
     h := c.getHeight() + 1
     w := c.getWidth()
     return Coord{ h, w }
 }
 
+// Get cell coordinates determined by a form, a pivot and
+// state of rotation.
+func getComposedCoords(f Form, pivot Coord, rot Rot) [4]Coord {
+    ph := pivot.getHeight()
+    pw := pivot.getWidth()
+
+    var coords [4]Coord
+    switch f {
+    case I:
+        switch rot {
+        case rot0:
+            coords = [4]Coord{
+                Coord{ph, pw-1}, Coord{ph, pw},
+                Coord{ph, pw+1}, Coord{ph, pw+2},
+            }
+        case rot90:
+            coords = [4]Coord{
+                Coord{ph-1, pw}, Coord{ph, pw},
+                Coord{ph+1, pw}, Coord{ph+2, pw},
+            }
+        case rot180:
+            coords = [4]Coord{
+                Coord{ph, pw-2}, Coord{ph, pw-1},
+                Coord{ph, pw}, Coord{ph, pw+1},
+            }
+        case rot270:
+            coords = [4]Coord{
+                Coord{ph-2, pw}, Coord{ph-1, pw},
+                Coord{ph, pw}, Coord{ph+1, pw},
+            }
+        }
+    case O:
+        // A pivot of O form is fixed at upper left cell.
+        coords = [4]Coord{
+            Coord{ph, pw}, Coord{ph, pw+1},
+            Coord{ph+1, pw}, Coord{ph+1, pw+1},
+        }
+    case S:
+        switch rot {
+        case rot0:
+            coords = [4]Coord{
+                Coord{ph-1, pw}, Coord{ph-1, pw+1},
+                Coord{ph, pw-1}, Coord{ph, pw},
+            }
+        case rot90:
+            coords = [4]Coord{
+                Coord{ph-1, pw}, Coord{ph, pw},
+                Coord{ph, pw+1}, Coord{ph+1, pw+1},
+            }
+        case rot180:
+            coords = [4]Coord{
+                Coord{ph, pw}, Coord{ph, pw+1},
+                Coord{ph+1, pw-1}, Coord{ph+1, pw},
+            }
+        case rot270:
+            coords = [4]Coord{
+                Coord{ph-1, pw-1}, Coord{ph, pw-1},
+                Coord{ph, pw}, Coord{ph+1, pw},
+            }
+        }
+    case Z:
+        switch rot {
+        case rot0:
+            coords = [4]Coord{
+                Coord{ph-1, pw-1}, Coord{ph-1, pw},
+                Coord{ph, pw}, Coord{ph, pw+1},
+            }
+        case rot90:
+            coords = [4]Coord{
+                Coord{ph-1, pw+1}, Coord{ph, pw},
+                Coord{ph, pw+1}, Coord{ph+1, pw},
+            }
+        case rot180:
+            coords = [4]Coord{
+                Coord{ph, pw-1}, Coord{ph, pw},
+                Coord{ph+1, pw}, Coord{ph+1, pw+1},
+            }
+        case rot270:
+            coords = [4]Coord{
+                Coord{ph-1, pw}, Coord{ph, pw-1},
+                Coord{ph, pw}, Coord{ph+1, pw-1},
+            }
+        }
+    case J:
+        switch rot {
+        case rot0:
+            coords = [4]Coord{
+                Coord{ph-1, pw-1}, Coord{ph, pw-1},
+                Coord{ph, pw}, Coord{ph, pw+1},
+            }
+        case rot90:
+            coords = [4]Coord{
+                Coord{ph-1, pw}, Coord{ph-1, pw+1},
+                Coord{ph, pw}, Coord{ph+1, pw},
+            }
+        case rot180:
+            coords = [4]Coord{
+                Coord{ph, pw-1}, Coord{ph, pw},
+                Coord{ph, pw+1}, Coord{ph+1, pw+1},
+            }
+        case rot270:
+            coords = [4]Coord{
+                Coord{ph-1, pw}, Coord{ph, pw},
+                Coord{ph+1, pw-1}, Coord{ph+1, pw},
+            }
+        }
+    case L:
+        switch rot {
+        case rot0:
+            coords = [4]Coord{
+                Coord{ph-1, pw+1}, Coord{ph, pw-1},
+                Coord{ph, pw}, Coord{ph, pw+1},
+            }
+        case rot90:
+            coords = [4]Coord{
+                Coord{ph-1, pw}, Coord{ph, pw},
+                Coord{ph+1, pw}, Coord{ph+1, pw+1},
+            }
+        case rot180:
+            coords = [4]Coord{
+                Coord{ph, pw-1}, Coord{ph, pw},
+                Coord{ph, pw+1}, Coord{ph+1, pw-1},
+            }
+        case rot270:
+            coords = [4]Coord{
+                Coord{ph-1, pw-1}, Coord{ph-1, pw},
+                Coord{ph, pw}, Coord{ph+1, pw},
+            }
+        }
+    case T:
+        switch rot {
+        case rot0:
+            coords = [4]Coord{
+                Coord{ph-1, pw}, Coord{ph, pw-1},
+                Coord{ph, pw}, Coord{ph, pw+1},
+            }
+        case rot90:
+            coords = [4]Coord{
+                Coord{ph-1, pw}, Coord{ph, pw},
+                Coord{ph, pw+1}, Coord{ph+1, pw},
+            }
+        case rot180:
+            coords = [4]Coord{
+                Coord{ph, pw-1}, Coord{ph, pw},
+                Coord{ph, pw+1}, Coord{ph+1, pw},
+            }
+        case rot270:
+            coords = [4]Coord{
+                Coord{ph-1, pw}, Coord{ph, pw-1},
+                Coord{ph, pw}, Coord{ph+1, pw},
+            }
+        }
+    }
+    return coords
+}
+
 func (m *Mino) left() {
     for i, c := range m.coords {
         m.coords[i] = c.left()
     }
+    m.pivot = m.pivot.left()
 }
 
 func (m *Mino) right() {
     for i, c := range m.coords {
         m.coords[i] = c.right()
     }
+    m.pivot = m.pivot.right()
 }
 
 func (m *Mino) down() {
     for i, c := range m.coords {
         m.coords[i] = c.down()
     }
+    m.pivot = m.pivot.down()
+}
+
+func (m Mino) getRotatedPivotForIForm(rot Move) Coord {
+    if m.form != I {
+        panic("getRotatedPivotForIForm can available only for I form")
+    }
+
+    var new_p Coord
+
+    switch rot {
+    case RotLeft:
+        switch m.rot {
+            case rot0:
+                new_p = m.pivot.down()
+            case rot90:
+                new_p = m.pivot.left()
+            case rot180:
+                new_p = m.pivot.up()
+            case rot270:
+                new_p = m.pivot.right()
+        }
+    case RotRight:
+        switch m.rot {
+            case rot0:
+                new_p = m.pivot.right()
+            case rot90:
+                new_p = m.pivot.down()
+            case rot180:
+                new_p = m.pivot.left()
+            case rot270:
+                new_p = m.pivot.up()
+        }
+    default:
+        panic("getRotatedPivotForIForm can handle only rotaion")
+    }
+    return new_p
+}
+
+func (m *Mino) rotLeft() {
+    turnLeft := func(r Rot) Rot {
+        switch r {
+        case rot0:
+            return rot270
+        case rot90:
+            return rot0
+        case rot180:
+            return rot90
+        default:
+            return rot180
+        }
+    }
+    new_rot := turnLeft(m.rot)
+
+    switch m.form {
+    case I:
+        m.pivot = (*m).getRotatedPivotForIForm(RotLeft)
+        m.coords = getComposedCoords(m.form, m.pivot, new_rot)
+    case O:
+        return
+    case S, Z, J, L, T:
+        m.coords = getComposedCoords(m.form, m.pivot, new_rot)
+    }
+
+    m.rot = new_rot
+}
+
+func (m *Mino) rotRight() {
+    turnRight := func(r Rot) Rot {
+        switch r {
+        case rot0:
+            return rot90
+        case rot90:
+            return rot180
+        case rot180:
+            return rot270
+        default:
+            return rot0
+        }
+    }
+    new_rot := turnRight(m.rot)
+
+    switch m.form {
+    case I:
+        m.pivot = (*m).getRotatedPivotForIForm(RotRight)
+        m.coords = getComposedCoords(m.form, m.pivot, new_rot)
+    case O:
+        return
+    case S, Z, J, L, T:
+        m.coords = getComposedCoords(m.form, m.pivot, new_rot)
+    }
+
+    m.rot = new_rot
 }
 
 func newMino(f Form, r Rot) *Mino {
@@ -91,6 +353,7 @@ func (m *Mino) copy() *Mino {
     new_m.form = m.form
     new_m.rot = m.rot
     new_m.coords = m.coords
+    new_m.pivot = m.pivot
     return new_m
 }
 
@@ -117,46 +380,10 @@ func (m *Mino) color() Color {
 
 func getInitPosMino(f Form) *Mino {
     m := newMino(f, rot0)
-
-    var coords [4]Coord
-    switch m.form {
-    case I:
-        coords = [4]Coord{
-            Coord{0, 3}, Coord{0, 4},
-            Coord{0, 5}, Coord{0, 6},
-        }
-    case O:
-        coords = [4]Coord{
-            Coord{-1, 4}, Coord{-1, 5},
-            Coord{0, 4}, Coord{0, 5},
-        }
-    case S:
-        coords = [4]Coord{
-            Coord{-1, 4}, Coord{-1, 5},
-            Coord{0, 3}, Coord{0, 4},
-        }
-    case Z:
-        coords = [4]Coord{
-            Coord{-1, 3}, Coord{-1, 4},
-            Coord{0, 4}, Coord{0, 5},
-        }
-    case J:
-        coords = [4]Coord{
-            Coord{-1, 3}, Coord{0, 3},
-            Coord{0, 4}, Coord{0, 5},
-        }
-    case L:
-        coords = [4]Coord{
-            Coord{0, 3}, Coord{0, 4},
-            Coord{0, 5}, Coord{-1, 5},
-        }
-    case T:
-        coords = [4]Coord{
-            Coord{-1, 4}, Coord{0, 3},
-            Coord{0, 4}, Coord{0, 5},
-        }
-    }
-    m.coords = coords
+    // Every forms that are in initial potision have
+    // (0, 4) pivot.
+    m.pivot = Coord{0, 4}
+    m.coords = getComposedCoords(f, m.pivot, rot0)
     return m
 }
 
@@ -169,6 +396,10 @@ func (m *Mino) move(move Move) *Mino {
         new_m.right()
     case MoveDown:
         new_m.down()
+    case RotLeft:
+        new_m.rotLeft()
+    case RotRight:
+        new_m.rotRight()
     }
     return new_m
 }
