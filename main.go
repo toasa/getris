@@ -14,6 +14,7 @@ const (
     FIELD_WIDTH = 10
     FIELD_HEIGHT = 20
     MINO_NUM = 7
+    DESCEND_INTERVAL_MS = 1500
 )
 
 type Color uint32
@@ -76,41 +77,54 @@ func getRandomForm() Form {
 }
 
 func (w *Window) run() {
+    // To implement automatically descent of tetri-mino
+    // in every unit time, we use ticker.
+    ticker := time.NewTicker(time.Millisecond * DESCEND_INTERVAL_MS)
+    defer ticker.Stop()
+
     running := true
     for running {
-        for e := sdl.PollEvent(); e != nil; e = sdl.PollEvent() {
-            switch t := e.(type) {
-            case *sdl.QuitEvent:
-                println("Quit")
-                running = false
-                break
-            case *sdl.KeyboardEvent:
-                if t.GetType() == sdl.KEYDOWN {
-                    switch getKeycode(t) {
-                    case KEY_LEFT:
-                        w.field.attempt(MoveLeft)
-                    case KEY_RIGHT:
-                        w.field.attempt(MoveRight)
-                    case KEY_DOWN:
-                        w.field.attempt(MoveDown)
-                    case KEY_ROT_LEFT:
-                        w.field.attempt(RotLeft)
-                    case KEY_ROT_RIGHT:
-                        w.field.attempt(RotRight)
+        select {
+        case <-ticker.C:
+            w.field.attempt(MoveDown)
+            w.field.attemptDescent()
+
+            if w.field.curMino == nil {
+                w.field.addMino(getRandomForm())
+            }
+
+            w.update()
+        default:
+            for e := sdl.PollEvent(); e != nil; e = sdl.PollEvent() {
+                switch t := e.(type) {
+                case *sdl.QuitEvent:
+                    println("Quit")
+                    running = false
+                    break
+                case *sdl.KeyboardEvent:
+                    if t.GetType() == sdl.KEYDOWN {
+                        switch getKeycode(t) {
+                        case KEY_LEFT:
+                            w.field.attempt(MoveLeft)
+                        case KEY_RIGHT:
+                            w.field.attempt(MoveRight)
+                        case KEY_DOWN:
+                            w.field.attempt(MoveDown)
+                        case KEY_ROT_LEFT:
+                            w.field.attempt(RotLeft)
+                        case KEY_ROT_RIGHT:
+                            w.field.attempt(RotRight)
+                        }
                     }
-                }
 
-                lines := w.field.getCompleteHorizontalLines()
-                if len(lines) > 0 {
-                    w.field.eraseLines(lines)
-                    w.field.dropRemains(lines)
-                }
+                    w.field.attemptDescent()
 
-                if w.field.curMino == nil {
-                    w.field.addMino(getRandomForm())
-                }
+                    if w.field.curMino == nil {
+                        w.field.addMino(getRandomForm())
+                    }
 
-                w.update()
+                    w.update()
+                }
             }
         }
     }

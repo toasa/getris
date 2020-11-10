@@ -93,6 +93,14 @@ func (f *Field) attempt(move Move) {
     f.draw()
 }
 
+func (f *Field) attemptDescent() {
+    lines := f.getCompleteHorizontalLines()
+    if len(lines) > 0 {
+        f.eraseLines(lines)
+        f.dropRemains(lines)
+    }
+}
+
 func (f *Field) legalMove(m Mino) bool {
     coords := m.coords
     for _, coord := range coords {
