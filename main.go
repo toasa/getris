@@ -39,7 +39,7 @@ func newWindow() (*Window, error) {
         WINDOW_NAME,
         sdl.WINDOWPOS_UNDEFINED,
         sdl.WINDOWPOS_UNDEFINED,
-		WINDOW_WIDTH,
+        WINDOW_WIDTH,
         WINDOW_HEIGHT,
         sdl.WINDOW_SHOWN,
     )
@@ -62,7 +62,7 @@ func newWindow() (*Window, error) {
 
 func (w *Window) initialize() {
     w.field.draw()
-	w.update()
+    w.update()
     // To randomize the selection of tetri-mino.
     rand.Seed(time.Now().UnixNano())
 }
@@ -76,7 +76,7 @@ func getRandomForm() Form {
 }
 
 func (w *Window) run() {
-	running := true
+    running := true
     for running {
         for e := sdl.PollEvent(); e != nil; e = sdl.PollEvent() {
             switch t := e.(type) {
@@ -116,9 +116,9 @@ func start(w *Window) {
 }
 
 func main() {
-	if err := sdl.Init(sdl.INIT_EVERYTHING); err != nil {
-		panic(err)
-	}
+    if err := sdl.Init(sdl.INIT_EVERYTHING); err != nil {
+        panic(err)
+    }
 
     w, err := newWindow()
     if err != nil {
