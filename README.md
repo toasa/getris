@@ -1,12 +1,23 @@
-# tetris
+# getris
 
-Go言語で書かれたテトリスです。
+This is tetris written in Go.
 
 # Usage
 
+## Game start
 ```
 $ make run
 ```
+
+## Control
+
+|Key|action|
+|---|---|
+|←|left|
+|→|right|
+|↓|drop|
+|ｚ|rotate left|
+|ｘ|rotate right|
 
 # Requirement
 
