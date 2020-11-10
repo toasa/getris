@@ -11,13 +11,13 @@ $ make run
 
 ## Control
 
-|Key|action|
+|Key|Action|
 |---|---|
-|←|left|
-|→|right|
-|↓|drop|
-|ｚ|rotate left|
-|ｘ|rotate right|
+|←|Left|
+|→|Right|
+|↓|Drop|
+|ｚ|Rotate left|
+|ｘ|Rotate right|
 
 # Requirement
 
