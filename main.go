@@ -93,16 +93,23 @@ func (w *Window) run() {
                         w.field.attempt(MoveRight)
                     case KEY_DOWN:
                         w.field.attempt(MoveDown)
-                        if w.field.curMino == nil {
-                            w.field.addMino(getRandomForm())
-                            w.update()
-                        }
                     case KEY_ROT_LEFT:
                         w.field.attempt(RotLeft)
                     case KEY_ROT_RIGHT:
                         w.field.attempt(RotRight)
                     }
                 }
+
+                lines := w.field.getCompleteHorizontalLines()
+                if len(lines) > 0 {
+                    w.field.eraseLines(lines)
+                    w.field.dropRemains(lines)
+                }
+
+                if w.field.curMino == nil {
+                    w.field.addMino(getRandomForm())
+                }
+
                 w.update()
             }
         }

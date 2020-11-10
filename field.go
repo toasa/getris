@@ -1,6 +1,7 @@
 package main
 
 import (
+    "sort"
     "github.com/veandco/go-sdl2/sdl"
 )
 
@@ -162,4 +163,111 @@ func (f *Field) toFix(m Mino) {
         cell := f.getCell(h, w)
         cell.state = Filled
     }
+}
+
+func (f *Field) getCompleteHorizontalLines() []int {
+    lines := []int{}
+    for h := 0; h < FIELD_HEIGHT; h++ {
+        all_filled := true
+        for w := 0; w < FIELD_WIDTH; w++ {
+            if f.getCell(h, w).state != Filled {
+                all_filled = false
+            }
+        }
+        if all_filled {
+            lines = append(lines, h)
+        }
+    }
+    return lines
+}
+
+func (f *Field) eraseLine(h int) {
+    for w := 0; w < FIELD_WIDTH; w++ {
+        cell := f.getCell(h, w)
+        cell.toVoid()
+    }
+}
+
+func (f *Field) eraseLines(lines []int) {
+    for _, l := range lines {
+        f.eraseLine(l)
+    }
+}
+
+func (f *Field) dropRemains(erasedLines []int) {
+    f.eraseLines(erasedLines)
+
+    if len(erasedLines) == 0 {
+        return
+    }
+
+    erasedMap := func(eLines []int) []bool {
+        eMap := make([]bool, FIELD_HEIGHT, FIELD_HEIGHT)
+        for _, h := range eLines {
+            eMap[h] = true
+        }
+        return eMap
+    }(erasedLines)
+
+    nFixedLine := func(eMap []bool) int {
+        n := 0
+        for h := FIELD_HEIGHT-1; h >= 0; h-- {
+            if eMap[h] {
+                break
+            }
+            n++
+        }
+        return n
+    }(erasedMap)
+
+    // Do nothing.
+    if nFixedLine >= FIELD_HEIGHT {
+        return
+    }
+
+    copyLine := func(dstL, srcL int) {
+        for w := 0; w < FIELD_WIDTH; w++ {
+            f.board[dstL][w] = f.board[srcL][w]
+        }
+    }
+
+    copySrcL := func(nFixed int, eMap []bool) int {
+        for h := FIELD_HEIGHT-(1+nFixed); h >= 0; h-- {
+            if !eMap[h] {
+                return h
+            }
+        }
+        return FIELD_HEIGHT
+    }(nFixedLine, erasedMap)
+
+    // No drop and erase lines only.
+    if copySrcL >= FIELD_HEIGHT {
+        return
+    }
+
+    sort.Sort(sort.IntSlice(erasedLines))
+    copyDstL := erasedLines[len(erasedLines)-1]
+
+    if copySrcL >= copyDstL {
+        panic("Fail to drop line: copying")
+    }
+
+    // Assume that copySrcL is greater than copyDstL.
+    for copySrcL >= 0 && copyDstL >= 0 {
+        if copySrcL < 0{
+            f.eraseLine(copyDstL)
+        }
+        copyLine(copyDstL, copySrcL)
+        copyDstL--; copySrcL--
+        for copySrcL >= 0 && erasedMap[copySrcL] {
+            copySrcL--
+        }
+
+        for copySrcL < 0 && copyDstL >= 0 {
+            f.eraseLine(copyDstL)
+            copyDstL--
+        }
+    }
+
+    f.draw()
 }
