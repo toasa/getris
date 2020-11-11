@@ -5,14 +5,16 @@ import (
     "github.com/veandco/go-sdl2/sdl"
 )
 
+type Board [FIELD_HEIGHT][FIELD_WIDTH]*Cell
+
 type Field struct {
     surface *sdl.Surface
-    board [FIELD_HEIGHT][FIELD_WIDTH]*Cell
+    board Board
     curMino *Mino
 }
 
 func newField(window *sdl.Window) (*Field, error) {
-    var board [FIELD_HEIGHT][FIELD_WIDTH]*Cell
+    var board Board
     for h := 0; h < FIELD_HEIGHT; h++ {
         for w := 0; w < FIELD_WIDTH; w++ {
             board[h][w] = newCell(VOID, colorVOID)
@@ -114,8 +116,88 @@ func (f *Field) attempt(move Move) {
     }
 
     if !f.legalMove(*new_m) {
-        return
+        // If move is not rotation, moving attempt simply is failed.
+        if !(move == RotLeft || move == RotRight) {
+            return
+        }
+
+        // In the followings, assume that move is rotaion.
+        // Currently, rotate of mino failed and
+        // we try to slide mino sideways.
+
+        const (
+            exceedLeft uint8 = iota
+            exceedRight
+            noExceedSide
+        )
+
+        // check a new mino is exceed sideways.
+        // If so, checkExceedSide reports which side and
+        // the number that need to slide.
+        checkExceedSide := func(b Board, m Mino) (uint8, int) {
+            exLeftFlag := false
+            exRightFlag := false
+            for _, coord := range m.coords {
+                if coord.isExceedTop() {
+                    continue
+                }
+                w := coord.getWidth()
+                if w < 0 {
+                    exLeftFlag = true
+                    break
+                }
+                if w >= FIELD_WIDTH {
+                    exRightFlag = true
+                    break
+                }
+            }
+
+            if !exLeftFlag && !exRightFlag {
+                return noExceedSide, 0
+            }
+
+            // To avoid multiple counting exceeded cells
+            // which have same width and different height.
+            hMap := make(map[int]bool)
+            if exLeftFlag {
+                for _, coord := range m.coords {
+                    w := coord.getWidth()
+                    if w < 0 {
+                        hMap[coord.getHeight()] = true
+                    }
+                }
+                return exceedLeft, len(hMap)
+            } else {
+                for _, coord := range m.coords {
+                    w := coord.getWidth()
+                    if w >= FIELD_WIDTH {
+                        hMap[coord.getHeight()] = true
+                    }
+                }
+                return exceedRight, len(hMap)
+            }
+        }
+        ex, n := checkExceedSide(f.board, *new_m)
+        if ex == noExceedSide {
+            return
+        }
+
+        if ex == exceedLeft {
+            for i := 0; i < n; i++ {
+                new_m = new_m.move(MoveRight)
+            }
+        } else if ex == exceedRight {
+            for i := 0; i < n; i++ {
+                new_m = new_m.move(MoveLeft)
+            }
+        }
+
+        // Attempt to slide mino failed.
+        if !f.legalMove(*new_m) {
+            return
+        }
     }
+
     f.blank(*(f.curMino))
     f.setMino(new_m)
     f.draw()
