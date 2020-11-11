@@ -8,7 +8,7 @@ import (
 )
 
 const (
-    WINDOW_NAME = "tetris"
+    WINDOW_NAME = "getris"
     WINDOW_WIDTH = 200
     WINDOW_HEIGHT = 400
     CELL_LEN = 20
