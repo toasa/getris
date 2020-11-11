@@ -2,6 +2,8 @@
 
 This is tetris written in Go.
 
+![board](img/board.png)
+
 # Usage
 
 ## Game start
