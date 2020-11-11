@@ -116,6 +116,8 @@ func (w *Window) run() {
                             w.field.attempt(MoveRight)
                         case KEY_DOWN:
                             w.field.attempt(MoveDown)
+                        case KEY_HARD_DOWN:
+                            w.field.attempt(MoveHardDown)
                         case KEY_ROT_LEFT:
                             w.field.attempt(RotLeft)
                         case KEY_ROT_RIGHT:

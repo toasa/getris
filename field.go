@@ -91,9 +91,22 @@ func (f *Field) isGameOver(m *Mino) bool {
 func (f *Field) attempt(move Move) {
     new_m := f.curMino.move(move)
 
+    // Hard down is implemented by repeating single down
+    // as continuously as possible.
+    if move == MoveHardDown {
+        prev_m := f.curMino
+        for !f.atBottom(*new_m) {
+            prev_m = new_m
+            new_m = new_m.move(move)
+        }
+        f.blank(*(f.curMino))
+        f.setMino(prev_m)
+    }
+
     // current tetri-mino reaches to bottom or
     // already filled cells.
-    if move == MoveDown && f.atBottom(*new_m) {
+    if (move == MoveDown && f.atBottom(*new_m)) ||
+    (move == MoveHardDown) {
         f.toFix(*(f.curMino))
         f.draw()
         f.curMino = nil

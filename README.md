@@ -16,6 +16,7 @@ $ make run
 |←|Left|
 |→|Right|
 |↓|Drop|
+|↑|Hard Drop|
 |ｚ|Rotate left|
 |ｘ|Rotate right|
 

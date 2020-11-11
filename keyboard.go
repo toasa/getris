@@ -10,6 +10,7 @@ const (
     KEY_LEFT = sdl.K_LEFT
     KEY_RIGHT = sdl.K_RIGHT
     KEY_DOWN = sdl.K_DOWN
+    KEY_HARD_DOWN = sdl.K_UP
     KEY_ROT_LEFT = sdl.K_z
     KEY_ROT_RIGHT = sdl.K_x
 )

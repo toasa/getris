@@ -35,6 +35,7 @@ const (
     MoveLeft Move = iota
     MoveRight
     MoveDown
+    MoveHardDown
     RotLeft
     RotRight
 )
@@ -395,6 +396,8 @@ func (m *Mino) move(move Move) *Mino {
     case MoveRight:
         new_m.right()
     case MoveDown:
+        new_m.down()
+    case MoveHardDown:
         new_m.down()
     case RotLeft:
         new_m.rotLeft()
