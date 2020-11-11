@@ -1,6 +1,7 @@
 package main
 
 import (
+    "fmt"
     "math/rand"
     "time"
     "github.com/veandco/go-sdl2/sdl"
@@ -90,7 +91,12 @@ func (w *Window) run() {
             w.field.attemptDescent()
 
             if w.field.curMino == nil {
-                w.field.addMino(getRandomForm())
+                m := getInitPosMino(getRandomForm())
+                if w.field.isGameOver(m) {
+                    fmt.Println("Game Over!")
+                    running = false
+                }
+                w.field.addMino(m)
             }
 
             w.update()
@@ -98,7 +104,7 @@ func (w *Window) run() {
             for e := sdl.PollEvent(); e != nil; e = sdl.PollEvent() {
                 switch t := e.(type) {
                 case *sdl.QuitEvent:
-                    println("Quit")
+                    fmt.Println("Quit")
                     running = false
                     break
                 case *sdl.KeyboardEvent:
@@ -120,7 +126,12 @@ func (w *Window) run() {
                     w.field.attemptDescent()
 
                     if w.field.curMino == nil {
-                        w.field.addMino(getRandomForm())
+                        m := getInitPosMino(getRandomForm())
+                        if w.field.isGameOver(m) {
+                            fmt.Println("Game Over!")
+                            running = false
+                        }
+                        w.field.addMino(m)
                     }
 
                     w.update()
@@ -131,7 +142,8 @@ func (w *Window) run() {
 }
 
 func start(w *Window) {
-    w.field.addMino(getRandomForm())
+    newm := getInitPosMino(getRandomForm())
+    w.field.addMino(newm)
     w.update()
     w.run()
 }

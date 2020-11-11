@@ -65,11 +65,26 @@ func (f *Field) setMino(m *Mino) {
     }
 }
 
-// TODO: Judge game over
-func (f *Field) addMino(form Form) {
-    m := getInitPosMino(form)
+func (f *Field) addMino(m *Mino) {
     f.setMino(m)
     f.draw()
+}
+
+func (f *Field) isGameOver(m *Mino) bool {
+    coords := m.coords
+    for _, coord := range coords {
+        if coord.isExceedTop() {
+            continue
+        }
+
+        h := coord.getHeight()
+        w := coord.getWidth()
+        cell := f.getCell(h, w)
+        if cell.state == Filled {
+            return true
+        }
+    }
+    return false
 }
 
 // attempt attempts to a specific move for current tetri-mino.
