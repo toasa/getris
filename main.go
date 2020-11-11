@@ -9,8 +9,8 @@ import (
 
 const (
     WINDOW_NAME = "tetris"
-    WINDOW_WIDTH = 800
-    WINDOW_HEIGHT = 600
+    WINDOW_WIDTH = 400
+    WINDOW_HEIGHT = 500
     CELL_LEN = 20
     FIELD_WIDTH = 10
     FIELD_HEIGHT = 20
