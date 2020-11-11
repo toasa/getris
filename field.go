@@ -122,8 +122,8 @@ func (f *Field) attempt(move Move) {
         }
 
         // In the followings, assume that move is rotaion.
-        // Currently, rotate of mino failed and
-        // we try to slide mino sideways.
+        // Currently, rotation of mino failed and
+        // we try to slide rotated mino horizontally.
 
         const (
             exceedLeft uint8 = iota
@@ -196,6 +196,8 @@ func (f *Field) attempt(move Move) {
         if !f.legalMove(*new_m) {
             return
         }
+
+        // If execution reaches here, slide of rotated mino succeeded.
     }
 
     f.blank(*(f.curMino))
