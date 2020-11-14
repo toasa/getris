@@ -124,6 +124,22 @@ func (f *Field) attempt(move Move) {
         // In the followings, assume that move is rotaion.
         // Currently, rotation of mino failed and
         // we try to slide rotated mino horizontally.
+        //
+        // For a explanation, we introduce following three figures.
+        // 
+        //     |                |                |
+        //     |■               | ■              |  ■
+        //     |■              □|■■              |■■■
+        //     |■■              |                |
+        //     |                |                |
+        //     +-----           +-----           +-----
+        //      Fig1             Fig2             Fig3
+        //
+        // First let we are in Fig1 case and we will rotate mino left.
+        // Then, in the naive implement, we are fall into the Fig2 case,
+        // and rotation failed. However, such a situation does not occur
+        // with ordinaty tetris. Instead slide the rotated mino to the
+        // right, like a in Fig3.
 
         const (
             exceedLeft uint8 = iota
