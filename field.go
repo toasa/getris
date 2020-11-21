@@ -1,6 +1,7 @@
 package main
 
 import (
+    "fmt"
     "sort"
     "github.com/veandco/go-sdl2/sdl"
 )
@@ -11,6 +12,7 @@ type Field struct {
     surface *sdl.Surface
     board Board
     curMino *Mino
+    dropPredMino *Mino
 }
 
 func newField(window *sdl.Window) (*Field, error) {
@@ -61,8 +63,18 @@ func (f *Field) getCell(h, w int) *Cell {
     return f.board[h][w]
 }
 
-func (f *Field) setMino(m *Mino) {
-    f.curMino = m
+func (f *Field) setMino(m *Mino, s State) {
+    var c Color
+    if s == Falling {
+        f.curMino = m
+        c = m.color()
+    } else if s == DropPred {
+        f.dropPredMino = m
+        c = colorDropPred
+    } else {
+        panic(fmt.Sprintf("Unknown state: %d", s))
+    }
+
     for _, coord := range m.coords {
         h := coord[0]
         w := coord[1]
@@ -72,13 +84,14 @@ func (f *Field) setMino(m *Mino) {
         if h < 0 {
             continue
         }
-        cell := newCell(Falling, m.color())
+        cell := newCell(s, c)
         f.setCell(h, w, cell)
     }
 }
 
 func (f *Field) addMino(m *Mino) {
-    f.setMino(m)
+    f.setMino(m, Falling)
+    f.setDropPredMino(m)
     f.draw()
 }
 
@@ -101,7 +114,7 @@ func (f *Field) isGameOver(m *Mino) bool {
 
 func (f *Field) moveMino(dst *Mino, src Mino) {
     f.blank(src)
-    f.setMino(dst)
+    f.setMino(dst, Falling)
 }
 
 // Hard drop is implemented by repeating single down
@@ -118,11 +131,20 @@ func (f *Field) getHardDropMino(m *Mino) *Mino {
     return prev_m
 }
 
+func (f *Field) setDropPredMino(m *Mino) {
+    new_m := f.getHardDropMino(m)
+    if f.dropPredMino != nil {
+        f.blank(*(f.dropPredMino))
+    }
+    f.setMino(new_m, DropPred)
+}
+
 // attempt attempts to a specified move for current tetri-mino.
 // The move may fail, for exapmle, in the case of go out the field
 // or overlap the already fixed cell. When move fails, then we do nothing.
 func (f *Field) attempt(move Move) {
     var new_m *Mino
+
     if move == MoveHardDrop {
         new_m = f.getHardDropMino(f.curMino)
         f.moveMino(new_m, *(f.curMino))
@@ -137,6 +159,7 @@ func (f *Field) attempt(move Move) {
         f.toFix(*(f.curMino))
         f.draw()
         f.curMino = nil
+        f.dropPredMino = nil
         return
     }
 
@@ -241,6 +264,7 @@ func (f *Field) attempt(move Move) {
         // If execution reaches here, slide of rotated mino succeeded.
     }
 
+    f.setDropPredMino(new_m)
     f.moveMino(new_m, *(f.curMino))
     f.draw()
 }

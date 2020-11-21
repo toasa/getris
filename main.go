@@ -22,6 +22,7 @@ type Color uint32
 const (
     colorWindow Color = 0x00000000
     colorVOID Color = 0x00DDDDDD
+    colorDropPred Color = 0x00EEEEEE
     colorI Color = 0x007BD7F9
     colorO Color = 0x00F7D320
     colorS Color = 0x0015A81F

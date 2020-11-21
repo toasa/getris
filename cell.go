@@ -5,6 +5,7 @@ const (
     VOID State = iota
     Filled
     Falling
+    DropPred
 )
 
 type Cell struct {
