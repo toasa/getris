@@ -35,10 +35,20 @@ func newField(window *sdl.Window) (*Field, error) {
 }
 
 func (f *Field) draw() {
+    getRect := func (h, w int) sdl.Rect{
+        return sdl.Rect {
+            int32(w * CELL_LEN),
+            int32(h * CELL_LEN),
+            CELL_LEN,
+            CELL_LEN,
+        }
+    }
+
     for h := 0; h < FIELD_HEIGHT; h++ {
         for w := 0; w < FIELD_WIDTH; w++ {
             cell := f.board[h][w]
-            cell.draw(h, w, f.surface)
+            rect := getRect(h, w)
+            f.surface.FillRect(&rect, uint32(cell.color))
         }
     }
 }

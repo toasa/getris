@@ -1,9 +1,5 @@
 package main
 
-import (
-    "github.com/veandco/go-sdl2/sdl"
-)
-
 type State uint8
 const (
     VOID State = iota
@@ -18,20 +14,6 @@ type Cell struct {
 
 func newCell(state State, color Color) *Cell {
     return &Cell{ state: state, color: color }
-}
-
-func (c *Cell) draw(h, w int, surface *sdl.Surface) {
-    rect := c.getRect(h, w)
-    surface.FillRect(&rect, uint32(c.color))
-}
-
-func (c *Cell) getRect(h, w int) sdl.Rect{
-    return sdl.Rect {
-        int32(w * CELL_LEN),
-        int32(h * CELL_LEN),
-        CELL_LEN,
-        CELL_LEN,
-    }
 }
 
 func (c *Cell) modify(s State, col Color) {
