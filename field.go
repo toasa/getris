@@ -99,6 +99,11 @@ func (f *Field) isGameOver(m *Mino) bool {
     return false
 }
 
+func (f *Field) moveMino(dst *Mino, src Mino) {
+    f.blank(src)
+    f.setMino(dst)
+}
+
 // attempt attempts to a specified move for current tetri-mino.
 // The move may fail, for exapmle, in the case of go out the field
 // or overlap the already fixed cell. When move fails, then we do nothing.
@@ -113,8 +118,7 @@ func (f *Field) attempt(move Move) {
             prev_m = new_m
             new_m = new_m.move(move)
         }
-        f.blank(*(f.curMino))
-        f.setMino(prev_m)
+        f.moveMino(prev_m, *(f.curMino))
     }
 
     // current tetri-mino reaches to bottom or
@@ -228,8 +232,7 @@ func (f *Field) attempt(move Move) {
         // If execution reaches here, slide of rotated mino succeeded.
     }
 
-    f.blank(*(f.curMino))
-    f.setMino(new_m)
+    f.moveMino(new_m, *(f.curMino))
     f.draw()
 }
 
