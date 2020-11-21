@@ -87,7 +87,7 @@ func (w *Window) run() {
     for running {
         select {
         case <-ticker.C:
-            w.field.attempt(MoveDown)
+            w.field.attempt(MoveDrop)
             w.field.attemptDescent()
 
             if w.field.curMino == nil {
@@ -114,10 +114,10 @@ func (w *Window) run() {
                             w.field.attempt(MoveLeft)
                         case KEY_RIGHT:
                             w.field.attempt(MoveRight)
-                        case KEY_DOWN:
-                            w.field.attempt(MoveDown)
-                        case KEY_HARD_DOWN:
-                            w.field.attempt(MoveHardDown)
+                        case KEY_DROP:
+                            w.field.attempt(MoveDrop)
+                        case KEY_HARD_DROP:
+                            w.field.attempt(MoveHardDrop)
                         case KEY_ROT_LEFT:
                             w.field.attempt(RotLeft)
                         case KEY_ROT_RIGHT:

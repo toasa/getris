@@ -34,8 +34,8 @@ type Move uint8
 const (
     MoveLeft Move = iota
     MoveRight
-    MoveDown
-    MoveHardDown
+    MoveDrop
+    MoveHardDrop
     RotLeft
     RotRight
 )
@@ -255,7 +255,7 @@ func (m *Mino) right() {
     m.pivot = m.pivot.right()
 }
 
-func (m *Mino) down() {
+func (m *Mino) drop() {
     for i, c := range m.coords {
         m.coords[i] = c.down()
     }
@@ -404,10 +404,10 @@ func (m *Mino) move(move Move) *Mino {
         new_m.left()
     case MoveRight:
         new_m.right()
-    case MoveDown:
-        new_m.down()
-    case MoveHardDown:
-        new_m.down()
+    case MoveDrop:
+        new_m.drop()
+    case MoveHardDrop:
+        new_m.drop()
     case RotLeft:
         new_m.rotLeft()
     case RotRight:

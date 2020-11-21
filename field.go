@@ -110,9 +110,9 @@ func (f *Field) moveMino(dst *Mino, src Mino) {
 func (f *Field) attempt(move Move) {
     new_m := f.curMino.move(move)
 
-    // Hard down is implemented by repeating single down
+    // Hard drop is implemented by repeating single drop
     // as continuously as possible.
-    if move == MoveHardDown {
+    if move == MoveHardDrop {
         prev_m := f.curMino
         for !f.atBottom(*new_m) {
             prev_m = new_m
@@ -123,8 +123,8 @@ func (f *Field) attempt(move Move) {
 
     // current tetri-mino reaches to bottom or
     // already filled cells.
-    if (move == MoveDown && f.atBottom(*new_m)) ||
-    (move == MoveHardDown) {
+    if (move == MoveDrop && f.atBottom(*new_m)) ||
+    (move == MoveHardDrop) {
         f.toFix(*(f.curMino))
         f.draw()
         f.curMino = nil
