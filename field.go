@@ -247,16 +247,16 @@ func (f *Field) attemptDescent() {
 func (f *Field) legalMove(m Mino) bool {
     coords := m.coords
     for _, coord := range coords {
+        if coord.isExceedSide() || coord.isExceedBottom() {
+            return false
+        }
+
         if coord.isExceedTop() {
             continue
         }
+
         h := coord.getHeight()
         w := coord.getWidth()
-
-        // Exceed field
-        if h >= FIELD_HEIGHT || w < 0 || w >= FIELD_WIDTH {
-            return false
-        }
 
         cell := f.getCell(h, w)
         if cell.state == Filled {

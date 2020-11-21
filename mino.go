@@ -52,6 +52,15 @@ func (c Coord) isExceedTop() bool {
     return c.getHeight() < 0
 }
 
+func (c Coord) isExceedBottom() bool {
+    return c.getHeight() >= FIELD_HEIGHT
+}
+
+func (c Coord) isExceedSide() bool {
+    w := c.getWidth()
+    return w < 0 || w >= FIELD_WIDTH
+}
+
 func (c Coord) left() Coord {
     h := c.getHeight()
     w := c.getWidth() - 1
