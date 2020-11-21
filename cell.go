@@ -22,5 +22,7 @@ func (c *Cell) modify(s State, col Color) {
 }
 
 func (c *Cell) toVoid() {
-    c.modify(VOID, colorVOID)
+    c.state = VOID
+    c.color = colorVOID
 }
+
