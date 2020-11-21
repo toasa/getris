@@ -104,21 +104,30 @@ func (f *Field) moveMino(dst *Mino, src Mino) {
     f.setMino(dst)
 }
 
+// Hard drop is implemented by repeating single down
+// as continuously as possible.
+func (f *Field) getHardDropMino(m *Mino) *Mino {
+    new_m := m
+    prev_m := f.curMino
+
+    for !f.atBottom(*new_m) {
+        prev_m = new_m
+        new_m = new_m.move(MoveDrop)
+    }
+
+    return prev_m
+}
+
 // attempt attempts to a specified move for current tetri-mino.
 // The move may fail, for exapmle, in the case of go out the field
 // or overlap the already fixed cell. When move fails, then we do nothing.
 func (f *Field) attempt(move Move) {
-    new_m := f.curMino.move(move)
-
-    // Hard drop is implemented by repeating single drop
-    // as continuously as possible.
+    var new_m *Mino
     if move == MoveHardDrop {
-        prev_m := f.curMino
-        for !f.atBottom(*new_m) {
-            prev_m = new_m
-            new_m = new_m.move(move)
-        }
-        f.moveMino(prev_m, *(f.curMino))
+        new_m = f.getHardDropMino(f.curMino)
+        f.moveMino(new_m, *(f.curMino))
+    } else {
+        new_m = f.curMino.move(move)
     }
 
     // current tetri-mino reaches to bottom or
