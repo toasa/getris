@@ -87,7 +87,8 @@ func (f *Field) setMino(m *Mino, s State) {
         h := coord.getHeight()
         w := coord.getWidth()
 
-        cell := newCell(s, c)
+        cell := f.getCell(h, w)
+        cell.modify(s, c)
         f.setCell(h, w, cell)
     }
 }
