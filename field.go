@@ -99,7 +99,9 @@ func (f *Field) isGameOver(m *Mino) bool {
     return false
 }
 
-// attempt attempts to a specific move for current tetri-mino.
+// attempt attempts to a specified move for current tetri-mino.
+// The move may fail, for exapmle, in the case of go out the field
+// or overlap the already fixed cell. When move fails, then we do nothing.
 func (f *Field) attempt(move Move) {
     new_m := f.curMino.move(move)
 
