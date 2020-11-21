@@ -397,8 +397,6 @@ func (m *Mino) move(move Move) *Mino {
         new_m.right()
     case MoveDown:
         new_m.down()
-    case MoveHardDown:
-        new_m.down()
     case RotLeft:
         new_m.rotLeft()
     case RotRight:

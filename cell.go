@@ -34,8 +34,11 @@ func (c *Cell) getRect(h, w int) sdl.Rect{
     }
 }
 
-func (c *Cell) toVoid() {
-    c.state = VOID
-    c.color = colorVOID
+func (c *Cell) modify(s State, col Color) {
+    c.state = s
+    c.color = col
 }
 
+func (c *Cell) toVoid() {
+    c.modify(VOID, colorVOID)
+}

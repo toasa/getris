@@ -89,26 +89,39 @@ func (f *Field) isGameOver(m *Mino) bool {
     return false
 }
 
-// attempt attempts to a specific move for current tetri-mino.
-func (f *Field) attempt(move Move) {
-    new_m := f.curMino.move(move)
+// Hard drop is implemented by repeating single down
+// as continuously as possible.
+func (f *Field) getHardDropMino(m *Mino) *Mino {
+    new_m := m
+    prev_m := f.curMino
 
-    // Hard down is implemented by repeating single down
-    // as continuously as possible.
-    if move == MoveHardDown {
-        prev_m := f.curMino
-        for !f.atBottom(*new_m) {
-            prev_m = new_m
-            new_m = new_m.move(move)
-        }
-        f.blank(*(f.curMino))
-        f.setMino(prev_m)
+    for !f.atBottom(*new_m) {
+        prev_m = new_m
+        new_m = new_m.move(MoveDown)
     }
+
+    return prev_m
+}
+
+// attempt attempts to a specified move for current tetri-mino.
+// The move may fail, for exapmle, in the case of go out the field
+// or overlap the already fixed cell. When move fails, then we do nothing.
+func (f *Field) attempt(move Move) {
+    // Hard down is special in that it doesn't fail.
+    if move == MoveHardDown {
+        new_m := f.getHardDropMino(f.curMino)
+        f.blank(*(f.curMino))
+        f.toFix(*new_m)
+        f.draw()
+        f.curMino = nil
+        return
+    }
+
+    new_m := f.curMino.move(move)
 
     // current tetri-mino reaches to bottom or
     // already filled cells.
-    if (move == MoveDown && f.atBottom(*new_m)) ||
-    (move == MoveHardDown) {
+    if move == MoveDown && f.atBottom(*new_m) {
         f.toFix(*(f.curMino))
         f.draw()
         f.curMino = nil
@@ -297,7 +310,8 @@ func (f *Field) toFix(m Mino) {
         h := coord.getHeight()
         w := coord.getWidth()
         cell := f.getCell(h, w)
-        cell.state = Filled
+        cell.modify(Filled, m.color())
+        f.setCell(h, w, cell)
     }
 }
 
