@@ -76,14 +76,13 @@ func (f *Field) setMino(m *Mino, s State) {
     }
 
     for _, coord := range m.coords {
-        h := coord[0]
-        w := coord[1]
-
-        // Cells that extend beyond the top of the field are valid,
-        // however do not draw.
-        if h < 0 {
+        if coord.isExceedTop() {
             continue
         }
+
+        h := coord.getHeight()
+        w := coord.getWidth()
+
         cell := newCell(s, c)
         f.setCell(h, w, cell)
     }
