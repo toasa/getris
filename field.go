@@ -66,11 +66,15 @@ func (f *Field) getCell(h, w int) *Cell {
 func (f *Field) setMino(m *Mino, s State) {
     var c Color
     if s == Falling {
-        f.curMino = m
         c = m.color()
+        f.curMino = m
     } else if s == DropPred {
-        f.dropPredMino = m
         c = colorDropPred
+        f.dropPredMino = m
+    } else if s == Fixed {
+        c = m.color()
+        f.curMino = nil
+        f.dropPredMino = nil
     } else {
         panic(fmt.Sprintf("Unknown state: %d", s))
     }
@@ -104,7 +108,7 @@ func (f *Field) isGameOver(m *Mino) bool {
         h := coord.getHeight()
         w := coord.getWidth()
         cell := f.getCell(h, w)
-        if cell.state == Filled {
+        if cell.state == Fixed {
             return true
         }
     }
@@ -152,13 +156,11 @@ func (f *Field) attempt(move Move) {
     }
 
     // current tetri-mino reaches to bottom or
-    // already filled cells.
+    // already fixed cells.
     if (move == MoveDrop && f.atBottom(*new_m)) ||
     (move == MoveHardDrop) {
-        f.toFix(*(f.curMino))
+        f.setMino(f.curMino, Fixed)
         f.draw()
-        f.curMino = nil
-        f.dropPredMino = nil
         return
     }
 
@@ -291,7 +293,7 @@ func (f *Field) legalMove(m Mino) bool {
         w := coord.getWidth()
 
         cell := f.getCell(h, w)
-        if cell.state == Filled {
+        if cell.state == Fixed {
             return false
         }
     }
@@ -326,7 +328,7 @@ func (f *Field) atBottom(m Mino) bool {
         }
 
         cell := f.getCell(h, w)
-        if cell.state == Filled {
+        if cell.state == Fixed {
             return true
         }
     }
@@ -334,30 +336,16 @@ func (f *Field) atBottom(m Mino) bool {
     return false
 }
 
-func (f *Field) toFix(m Mino) {
-    coords := m.coords
-    for _, coord := range coords {
-        if coord.isExceedTop() {
-            continue
-        }
-
-        h := coord.getHeight()
-        w := coord.getWidth()
-        cell := f.getCell(h, w)
-        cell.state = Filled
-    }
-}
-
 func (f *Field) getCompleteHorizontalLines() []int {
     lines := []int{}
     for h := 0; h < FIELD_HEIGHT; h++ {
-        all_filled := true
+        all_fixed := true
         for w := 0; w < FIELD_WIDTH; w++ {
-            if f.getCell(h, w).state != Filled {
-                all_filled = false
+            if f.getCell(h, w).state != Fixed {
+                all_fixed = false
             }
         }
-        if all_filled {
+        if all_fixed {
             lines = append(lines, h)
         }
     }

@@ -3,7 +3,7 @@ package main
 type State uint8
 const (
     VOID State = iota
-    Filled
+    Fixed
     Falling
     DropPred
 )
