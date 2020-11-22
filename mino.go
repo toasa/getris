@@ -1,5 +1,9 @@
 package main
 
+import (
+    "fmt"
+)
+
 type Coord [2]int
 
 type Mino struct {
@@ -406,12 +410,12 @@ func (m *Mino) move(move Move) *Mino {
         new_m.right()
     case MoveDrop:
         new_m.drop()
-    case MoveHardDrop:
-        new_m.drop()
     case RotLeft:
         new_m.rotLeft()
     case RotRight:
         new_m.rotRight()
+    default:
+        panic(fmt.Sprintf("Invalid move: %d", move))
     }
     return new_m
 }
