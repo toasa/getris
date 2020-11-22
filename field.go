@@ -64,6 +64,10 @@ func (f *Field) getCell(h, w int) *Cell {
 }
 
 func (f *Field) setMino(m *Mino, s State) {
+    if m == nil {
+        return
+    }
+
     var c Color
     if s == Falling {
         c = m.color()
@@ -94,8 +98,8 @@ func (f *Field) setMino(m *Mino, s State) {
 }
 
 func (f *Field) addMino(m *Mino) {
-    f.setMino(m, Falling)
     f.setDropPredMino(m)
+    f.setMino(m, Falling)
     f.draw()
 }
 
