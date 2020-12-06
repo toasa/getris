@@ -174,7 +174,7 @@ func (f *Field) attempt(move Move) {
             return
         }
 
-        // In the followings, assume that move is rotaion.
+        // If the control reaches here, assume that move is rotaion.
         // Currently, rotation of mino failed and
         // we try to slide rotated mino horizontally.
         //
