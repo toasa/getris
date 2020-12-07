@@ -15,7 +15,7 @@ const (
     FIELD_WIDTH = 10
     FIELD_HEIGHT = 20
     MINO_NUM = 7
-    DESCEND_INTERVAL_MS = 1500
+    DROP_INTERVAL_MS = 1500
 )
 
 type Color uint32
@@ -81,7 +81,7 @@ func getRandomForm() Form {
 func (w *Window) run() {
     // To implement automatically descent of tetri-mino
     // in every unit time, we use ticker.
-    ticker := time.NewTicker(time.Millisecond * DESCEND_INTERVAL_MS)
+    ticker := time.NewTicker(time.Millisecond * DROP_INTERVAL_MS)
     defer ticker.Stop()
 
     running := true
